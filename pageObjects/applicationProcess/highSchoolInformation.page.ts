@@ -20,7 +20,7 @@ export default class HighSchoolInformationPage{
     yearOfHightSchoolGraduationText:Locator=this.page.getByText('Year of High School Graduation')
     yearOfHightSchoolGraduationField:Locator=this.page.getByPlaceholder('Enter a date')
     transcriptUploadText:Locator=this.page.getByText('Transcript Upload')
-    pleaseUploadText:Locator=this.page.getByTestId('sublabel')
+    pleaseUploadText:Locator=this.page.locator('[data-testid="sublabel"] p')
     uploadFileButton:Locator=this.page.getByRole('button',{name:'Upload File'})
     chooseExistingFileButton:Locator=this.page.getByRole('button',{name:'Choose Existing File'})
     thisFieldRequiredError:Locator=this.page.getByText('This field is required')
@@ -54,5 +54,13 @@ export default class HighSchoolInformationPage{
             await this.page.waitForTimeout(3000)
             newUrl= this.page.url()
         }while(currentUrl===newUrl)
+    }
+    async fillHighSchoolForm(highSchoolName:string,highSchoolStreetAddress:string,highSchoolCity:string,highSchoolState:string,highSchoolZipCode:string,gpa:string){
+        await this.highSchoolNameField.fill(highSchoolName)
+        await this.highSchoolStreetAddressField.fill(highSchoolStreetAddress)
+        await this.highSchoolCityField.fill(highSchoolCity)
+        await this.selectHighSchoolState(highSchoolState)
+        await this.highSchoolZipCodeField.fill(highSchoolZipCode)
+        await this.gpaField.fill(gpa)
     }
 }

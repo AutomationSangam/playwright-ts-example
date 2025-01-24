@@ -38,4 +38,14 @@ export default class ExtraCurricularActivitiesPage{
             newUrl= this.page.url()
         }while(currentUrl===newUrl)
     }
+
+    async enterExtraCurricularActivityDetails(activityName:string,years:string,leadershipRole:string,description:string){
+        await this.addEntryButton.click()
+        await this.addEntryTextOnPopup.waitFor({state:'visible'})
+        await this.extraCurricularActivityNameField.fill(activityName)
+        await this.totalNumberOfYearsField.fill(years)
+        await this.listAnyLeadershipField.fill(leadershipRole)
+        await this.descriptionOfInvolvementField.fill(description)
+        await this.addButton.click()
+    }
 };

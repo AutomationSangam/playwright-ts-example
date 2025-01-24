@@ -11,6 +11,9 @@ import SDETScholarshipLoginPage from "@pages/sdetScholarshipLanding.page";
 import test, { expect } from "@playwright/test";
 import commonUtility from "helpers/commonUtility";
 import path from 'path'
+import extraCurricularConstant from "constants/extraCurricular.constant";
+import highSchoolConstant from "constants/highSchool.constant";
+import reviewApplicationConstant from "constants/reviewApplication.constant";
 
 
 
@@ -25,7 +28,7 @@ let reviewApplicationPage:ReviewApplicationPage
 const extraCurricularActivities:string[]=['Sports','Music','Dance','Drama','Debate','Quiz','Science Club','Math Club','Art Club','Photography','Videography','Coding Club','Robotics Club','Chess Club','Scouts','NCC','NSS','Red Cross','Volunteering','Internship','Part-time Job','Freelancing','Blogging','Social Media Influencer','Entrepreneurship','Startup','NGO','Community Service','Others']
 const fileName:string='My School Transcript.pdf'
 test.beforeEach(async ({ page }) => {
-    await page.goto('https://apply.mykaleidoscope.com/program/sdet-test-scholarship');
+    await page.goto('')
     sdetScholarshipLoginPage = new SDETScholarshipLoginPage(page)
     kaleidoscopeSignInPage = new KaleidoscopeSignInPage(page)
     createAccountPage = new CreateAccountPage(page)
@@ -36,8 +39,10 @@ test.beforeEach(async ({ page }) => {
     reviewApplicationPage = new ReviewApplicationPage(page)
 })
 
-test('SDET Scholarship Application Test', async ({ page }) => {
+test('Verify the SDET Scholarship Application process', async ({ page }) => {
     await sdetScholarshipLoginPage.loginToApply.click();
+
+    //Signup flow
     const emailAddress:string=faker.internet.email();
     await kaleidoscopeSignInPage.emailInputField.fill(emailAddress)
     await kaleidoscopeSignInPage.nextButton.click()
@@ -48,60 +53,48 @@ test('SDET Scholarship Application Test', async ({ page }) => {
     await createAccountPage.fillTheForm(fistName,lastName,mobileNo,password)
     await createAccountPage.ageConfirmationCheckbox.click()
     await createAccountPage.submitButton.click()
-
+    //Basic Profile Details
+    await expect(basicProfileDetailsPage.pageTitle).toHaveText('Lets get to know you!')
     const streetAddress:string=faker.location.streetAddress()
-  
     const city:string=faker.location.city()
-    const zipCode:string=faker.location.zipCode('#####')
+    const zipCode:string=faker.number.int({min:11111,max:99999}).toString()
     const {state,country}=await basicProfileDetailsPage.fillBasicProfileDetails(streetAddress,city,zipCode)
     await basicProfileDetailsPage.nextPageButton.click()
 
-    await expect(extraCurricularActivitiesPage.pageTitle).toHaveText('Extracurricular Activities')
-    await extraCurricularActivitiesPage.addEntryButton.click()
-    await extraCurricularActivitiesPage.addEntryTextOnPopup.waitFor({state:'visible'})
-    const extraCurricularActivity:string=commonUtility.getRandomElementFromArray(extraCurricularActivities)
-    await extraCurricularActivitiesPage.extraCurricularActivityNameField.fill(extraCurricularActivity)
-    const noOfYears:string=faker.number.int({min:1,max:10}).toString()
-    await extraCurricularActivitiesPage.totalNumberOfYearsField.fill(noOfYears)
-    const randomRecoginition:string=faker.lorem.sentence()
-    await extraCurricularActivitiesPage.listAnyLeadershipField.fill(randomRecoginition)
-    const randomDescription:string=faker.lorem.paragraph()
-    await extraCurricularActivitiesPage.descriptionOfInvolvementField.fill(randomDescription)
-    await extraCurricularActivitiesPage.addButton.click()
+    //Extra Curricular Activities
+    await expect(extraCurricularActivitiesPage.pageTitle).toHaveText('Extracurricular Activities') 
+    const firstActivity:string=commonUtility.getRandomElementFromArray(extraCurricularActivities)
+    const firstActivityYears:string=faker.number.int({min:1,max:10}).toString()
+    const firstActivityRecoginition:string=faker.lorem.sentence()
+    const firstActivityDescription:string=faker.lorem.paragraph()
+    await expect(extraCurricularActivitiesPage.listActivitiesParagraph).toHaveText(extraCurricularConstant.listActivitiesParagraph)
+    await extraCurricularActivitiesPage.enterExtraCurricularActivityDetails(firstActivity,firstActivityYears,firstActivityRecoginition,firstActivityDescription)
     await extraCurricularActivitiesPage.nextPageButton.click()
     await expect(extraCurricularActivitiesPage.minimumEntryError).toBeVisible()
-    await extraCurricularActivitiesPage.addEntryButton.click()
-    await extraCurricularActivitiesPage.addEntryTextOnPopup.waitFor({state:'visible'})
-    const newActivity:string=commonUtility.getRandomElementFromArray(extraCurricularActivities)
-    await extraCurricularActivitiesPage.extraCurricularActivityNameField.fill(newActivity)
-    const newNoOfYears:string=faker.number.int({min:1,max:10}).toString()
-    await extraCurricularActivitiesPage.totalNumberOfYearsField.fill(newNoOfYears)
-    const newRandomRecoginition:string=faker.lorem.sentence()
-    await extraCurricularActivitiesPage.listAnyLeadershipField.fill(newRandomRecoginition)
-    const newRandomDescription:string=faker.lorem.paragraph()
-    await extraCurricularActivitiesPage.descriptionOfInvolvementField.fill(newRandomDescription)
-    await extraCurricularActivitiesPage.addButton.click()
-    await expect(await extraCurricularActivitiesPage.getAllAddedEntry()).toHaveLength(2)
+    const secondActivity:string=commonUtility.getRandomElementFromArray(extraCurricularActivities)
+    const secondActivityYears:string=faker.number.int({min:1,max:10}).toString()
+    const secondActivityRecoginition:string=faker.person.jobTitle()
+    const secondActivityDescription:string=faker.lorem.paragraph()
+    await extraCurricularActivitiesPage.enterExtraCurricularActivityDetails(secondActivity,secondActivityYears,secondActivityRecoginition,secondActivityDescription)
+    expect(await extraCurricularActivitiesPage.getAllAddedEntry()).toHaveLength(2)
     await extraCurricularActivitiesPage.clickOnNextPageButton()
     
+    //High School Information
     await expect(highSchoolInformationPage.highSchoolInformationTitle).toHaveText('High School Information')
     const highSchoolName:string=faker.company.name()
-    await highSchoolInformationPage.highSchoolNameField.fill(highSchoolName)
     const highSchoolStreetAddress:string=faker.location.streetAddress()
-    await highSchoolInformationPage.highSchoolStreetAddressField.fill(highSchoolStreetAddress)
     const highSchoolCity:string=faker.location.city()
-    await highSchoolInformationPage.highSchoolCityField.fill(highSchoolCity)
     const stateName:string='California'
-    await highSchoolInformationPage.selectHighSchoolState(stateName)
-    const zipCodeForHighSchool:string=faker.location.zipCode('#####')
-    await highSchoolInformationPage.highSchoolZipCodeField.fill(zipCodeForHighSchool)
+    const zipCodeForHighSchool:string=faker.number.int({min:11111,max:99999}).toString()
     const gpa:string=faker.number.float({min:1,max:9,multipleOf:0.25}).toString()
-    await highSchoolInformationPage.gpaField.fill(gpa)
+    await highSchoolInformationPage.fillHighSchoolForm(highSchoolName,highSchoolStreetAddress,highSchoolCity,stateName,zipCodeForHighSchool,gpa)
     const yearOfHightSchoolGraduation:string=await highSchoolInformationPage.firstRandomAvailableDate()
+    await expect(highSchoolInformationPage.pleaseUploadText).toHaveText(highSchoolConstant.pleaseUploadText)
     await highSchoolInformationPage.inputFile.setInputFiles(path.join(__dirname,`../docsToBeUploaded/${fileName}`))
     await highSchoolInformationPage.uploadedFileLink(fileName).waitFor({state:'visible'})
     await highSchoolInformationPage.clickOnNextPageButton()
-
+    
+    //Essay
     await expect(essayPage.essayPageTitle).toHaveText('Essay')
     await essayPage.carsCheckBox.click()
     await expect(essayPage.essayAboutCarsText).toBeVisible()
@@ -129,6 +122,7 @@ test('SDET Scholarship Application Test', async ({ page }) => {
     const essayAboutSchool:string=faker.lorem.paragraph()
     await essayPage.essaySchoolInputField.fill(essayAboutSchool)
     await essayPage.nextPageButton.click()
+    //Review Application page
     await expect(reviewApplicationPage.reviewYourApplicationText).toBeVisible()
 
     await expect(reviewApplicationPage.sdetScholarShipText).toBeVisible()
@@ -152,19 +146,19 @@ test('SDET Scholarship Application Test', async ({ page }) => {
     await expect(reviewApplicationPage.countryValue).toHaveText(country)
 
     await reviewApplicationPage.extraCurricularActivitiesText.click()
-    await expect(reviewApplicationPage.getActivityElement(extraCurricularActivity)).toBeVisible()
-    await reviewApplicationPage.getActivityElement(extraCurricularActivity).click()
-    await expect(reviewApplicationPage.getExtraCurricularActivityNameElement(extraCurricularActivity)).toBeVisible()
-    await expect(reviewApplicationPage.getTotalNoOfYearsElement(noOfYears)).toBeVisible()
-    await expect(reviewApplicationPage.getListAnyLeadershipRoleElement(randomRecoginition)).toBeVisible()
-    await expect(reviewApplicationPage.getDescriptionOfInvolvementElement(randomDescription)).toBeVisible()
+    await expect(reviewApplicationPage.getActivityElement(firstActivity)).toBeVisible()
+    await reviewApplicationPage.getActivityElement(firstActivity).click()
+    await expect(reviewApplicationPage.getExtraCurricularActivityNameElement(firstActivity)).toBeVisible()
+    await expect(reviewApplicationPage.getTotalNoOfYearsElement(firstActivityYears)).toBeVisible()
+    await expect(reviewApplicationPage.getListAnyLeadershipRoleElement(firstActivityRecoginition)).toBeVisible()
+    await expect(reviewApplicationPage.getDescriptionOfInvolvementElement(firstActivityDescription)).toBeVisible()
 
-    await expect(reviewApplicationPage.getActivityElement(newActivity)).toBeVisible()
-    await reviewApplicationPage.getActivityElement(newActivity).click()
-    await expect(reviewApplicationPage.getExtraCurricularActivityNameElement(newActivity)).toBeVisible()
-    await expect(reviewApplicationPage.getTotalNoOfYearsElement(newNoOfYears)).toBeVisible()
-    await expect(reviewApplicationPage.getListAnyLeadershipRoleElement(newRandomRecoginition)).toBeVisible()
-    await expect(reviewApplicationPage.getDescriptionOfInvolvementElement(newRandomDescription)).toBeVisible()
+    await expect(reviewApplicationPage.getActivityElement(secondActivity)).toBeVisible()
+    await reviewApplicationPage.getActivityElement(secondActivity).click()
+    await expect(reviewApplicationPage.getExtraCurricularActivityNameElement(secondActivity)).toBeVisible()
+    await expect(reviewApplicationPage.getTotalNoOfYearsElement(secondActivityYears)).toBeVisible()
+    await expect(reviewApplicationPage.getListAnyLeadershipRoleElement(secondActivityRecoginition)).toBeVisible()
+    await expect(reviewApplicationPage.getDescriptionOfInvolvementElement(secondActivityDescription)).toBeVisible()
 
     await reviewApplicationPage.highSchoolInformationText.click()
     await expect(reviewApplicationPage.highSchoolNameValue).toHaveText(highSchoolName)
@@ -184,11 +178,12 @@ test('SDET Scholarship Application Test', async ({ page }) => {
     const url:string= page.url()
     await reviewApplicationPage.submitButton.click()
     await expect(reviewApplicationPage.applicationSubmittedText).toBeVisible()
+    await expect(reviewApplicationPage.applicationSubmittedText).toHaveText(reviewApplicationConstant.applicationSubmittedText)
     await page.goto(url)
+    //Application page
     await expect(reviewApplicationPage.reviewYourApplicationText).toBeVisible()
     await expect(reviewApplicationPage.editButtonForLetsGetToKnow).not.toBeVisible()
     await expect(reviewApplicationPage.editButtonForExtraCurricularActivities).not.toBeVisible()
     await expect(reviewApplicationPage.editButtonForHighSchoolInformation).not.toBeVisible()
     await expect(reviewApplicationPage.editButtonForEssay).not.toBeVisible()
-    
 })

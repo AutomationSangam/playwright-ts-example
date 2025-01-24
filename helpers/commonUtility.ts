@@ -27,7 +27,6 @@ class CommonUtility{
         const day = dateObj.getDate().toString().padStart(2, '0');
         const year = dateObj.getFullYear();
         const formattedDate = `${month}/${day}/${year}`;
-        console.log(formattedDate); 
         return formattedDate;
       }
 }
