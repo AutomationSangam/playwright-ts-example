@@ -1,4 +1,6 @@
-# playwright-ts-example
+# playwright-ts-example 
+![Playwright Logo](https://playwright.dev/img/playwright-logo.svg)
+![TypeScript Logo](https://www.typescriptlang.org/icons/icon-48x48.png)
 
 Playwright Typescript Test Suite for SDET Scholarship application.
 
